@@ -1,26 +1,34 @@
-const PRINCIPAL = 200000//208868.04 // 272346.62 //
-const INTEREST_RATE = 0.03//0.0274
-const MONTHLY_TERM= 20*12//(19*12)+6//(26*12)+7//26 years 8 months 01/05/2015
+interface IpaymentTableRow{
+    month: number,
+    amount: number,
+    interest_repaid: number,
+    principal_repaid: number,
+    outstanding: number
+} 
 
+export const monthly_payment = (P,r,n)=> P*(r*((1+r)**n)/((1+r)**n-1))
 
-// const convert_monthly = (i) => Math.pow(1+i,1/12)-1
-const convert_monthly = i => i/12
-
-const m_i = convert_monthly(INTEREST_RATE)
-
-const monthly_payment = (P,r,n)=> P*(r*((1+r)**n)/((1+r)**n-1))
-
-const payment_table = (P, m_i, MONTHLY_TERM, payment)=>{
-    let int_port;
-    console.log('month', 'Principal', 'interest', 'capital', 'remaining')
-    for (let i=1; i <= MONTHLY_TERM; i++){
-        int_port = (m_i*P).toFixed(2)
+export const payment_table = (P:number, m_i:number, term:number, payment:number):[IpaymentTableRow]=>{
+    let int_port:number;
+    let result: [IpaymentTableRow] =  [{
+        month: 1,
+        amount: 1,
+        interest_repaid: 1,
+        principal_repaid: 1,
+        outstanding: 1
+    }]
+    
+    for (let i=0; i < term; i++){
+        int_port = (m_i*P);
         let pri_port=payment-int_port;
-        console.log(i, P, int_port, (payment-int_port).toFixed(2), (P - pri_port).toFixed(2))
-        P = (P - pri_port).toFixed(2);
+        result[i] = {
+            month:i+1,
+            amount: P,
+            interest_repaid: Number(int_port.toFixed(2)),
+            principal_repaid: Number((payment-int_port).toFixed(2)),
+            outstanding: Number((P - pri_port).toFixed(2))
+        }
+        P = result[i].outstanding;
     }
-    return true
+    return result;
 }
-
-const MP= monthly_payment(PRINCIPAL,m_i, MONTHLY_TERM)
-console.log(payment_table(PRINCIPAL,m_i,MONTHLY_TERM, MP))
